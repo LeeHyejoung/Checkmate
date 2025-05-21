@@ -191,6 +191,9 @@
     function submitExam() {
         clearInterval(timer);
 
+        //session clear
+        sessionStorage.clear();
+
         const answer1 = document.getElementById('answer').value;
 
         // 2번째 문제 선택값 가져오기
