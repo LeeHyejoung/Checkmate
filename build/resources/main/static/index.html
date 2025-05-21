@@ -191,9 +191,6 @@
     function submitExam() {
         clearInterval(timer);
 
-        //session clear
-        sessionStorage.clear();
-
         const answer1 = document.getElementById('answer').value;
 
         // 2번째 문제 선택값 가져오기
@@ -212,6 +209,9 @@
         };
         console.log('제출된 전자 봉투:', envelope);
 
+        //session clear
+        sessionStorage.clear();
+        
         document.getElementById('exam-section').classList.add('hidden');
         document.getElementById('complete-section').classList.remove('hidden');
         document.getElementById('overlay').style.display = 'none';
