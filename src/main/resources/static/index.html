@@ -176,7 +176,7 @@
             publicKey: Math.random().toString(36).slice(2),
             privateKey: Math.random().toString(36).slice(2),
         };
-        sessionStorage.setItem('keyPair', JSON.stringify(keyPair));
+        localStorage.setItem('keyPair', JSON.stringify(keyPair));
 
         timer = setInterval(updateTimer, 1000);
         updateTimer();
@@ -184,7 +184,7 @@
 
     function saveTemp() {
         const answer = document.getElementById('answer').value;
-        sessionStorage.setItem('savedAnswer', answer);
+        localStorage.setItem('savedAnswer', answer);
         alert('임시 저장이 완료되었습니다.');
     }
 
@@ -197,7 +197,7 @@
         const q2Form = document.getElementById('question2-form');
         const selectedQ2 = q2Form.q2.value || '';
 
-        const keyPair = JSON.parse(sessionStorage.getItem('keyPair')) || {};
+        const keyPair = JSON.parse(localStorage.getItem('keyPair')) || {};
         const payload = {
             answer1,
             answer2: selectedQ2,
@@ -210,7 +210,7 @@
         console.log('제출된 전자 봉투:', envelope);
 
         //session clear
-        sessionStorage.clear();
+        localStorage.clear();
 
         document.getElementById('exam-section').classList.add('hidden');
         document.getElementById('complete-section').classList.remove('hidden');
@@ -219,7 +219,7 @@
 
 
     window.onload = () => {
-        const saved = sessionStorage.getItem('savedAnswer');
+        const saved = localStorage.getItem('savedAnswer');
         if (saved) document.getElementById('answer').value = saved;
     };
 </script>
