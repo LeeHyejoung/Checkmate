@@ -8,10 +8,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Scanner;
 
 import javax.crypto.Cipher;
@@ -19,13 +23,11 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 
-import java.security.PrivateKey;
-
 public class KeyManager {
 	private KeyPair keyPair;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
-	
+
 	public boolean generate() throws NoSuchAlgorithmException {
 		KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
 		keyPairGen.initialize(1024);
@@ -34,10 +36,32 @@ public class KeyManager {
 
 		privateKey = keyPair.getPrivate();
 		publicKey = keyPair.getPublic();
-		
+
 		return true;
 	}
-	
+
+	public byte[] getPublicKeyBytes() {
+		if (publicKey == null) return null;
+		return publicKey.getEncoded();
+	}
+
+	public byte[] getPrivateKeyBytes() {
+		if (privateKey == null) return null;
+		return privateKey.getEncoded();
+	}
+
+	public PublicKey getPublicKeyFromBytes(byte[] bytes) throws Exception {
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
+		return keyFactory.generatePublic(spec);
+	}
+
+	public PrivateKey getPrivateKeyFromBytes(byte[] bytes) throws Exception {
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
+		return keyFactory.generatePrivate(spec);
+	}
+
 	public boolean savePublicKey(String fname) {
 		try (FileOutputStream fos = new FileOutputStream(fname)) {
 			try (ObjectOutputStream ostream = new ObjectOutputStream(fos)) {
@@ -52,7 +76,7 @@ public class KeyManager {
 		}
 		return false;
 	}
-	
+
 	public PublicKey getPublicKey() {
 		return publicKey;
 	}
@@ -83,7 +107,7 @@ public class KeyManager {
 		}
 		return false;
 	}
-	
+
 	public PublicKey loadPublicKey(String fname) {
 		try (FileInputStream fis = new FileInputStream(fname)) {
 			try (ObjectInputStream ostream = new ObjectInputStream(fis)) {
@@ -100,7 +124,7 @@ public class KeyManager {
 		}
 		return null;
 	}
-	
+
 	public PrivateKey loadPrivateKey(String fname) {
 		try (FileInputStream fis = new FileInputStream(fname)) {
 			try (ObjectInputStream ostream = new ObjectInputStream(fis)) {
@@ -117,23 +141,7 @@ public class KeyManager {
 		}
 		return null;
 	}
-	
-	public void printInfo() {
-		System.out.println("암호화 알고리즘 : " + publicKey.getAlgorithm());
-		System.out.println("공개키 정보:");
-		System.out.println("키의 길이 (bytes): " + publicKey.getEncoded().length);
-		printBytes(publicKey.getEncoded());
-		System.out.println("\n개인키 정보:");
-		System.out.println("키의 길이 (bytes): " + privateKey.getEncoded().length);
-		printBytes(privateKey.getEncoded());
-	}
-	
-	public void printBytes(byte[] b) {
-		for (byte bytes : b) {
-			System.out.print(String.format("%02x", bytes) + " ");
-		}
-	}
-	
+
 	public Key getKey(String fname) {
 		if (fname.contains("public")) {
 			return loadPublicKey(fname);
@@ -153,23 +161,23 @@ public class KeyManager {
 				data += (char)c;
 			}
 		}
-		
+
 		try (FileOutputStream fos = new FileOutputStream(eFname);
-				CipherOutputStream cos = new CipherOutputStream(fos, cipher)) {
+			 CipherOutputStream cos = new CipherOutputStream(fos, cipher)) {
 			cos.write(data.getBytes());
 			cos.flush();
 		}
 		return true;
 	}
-	
+
 	public boolean decrypt(String kFname, String eFname) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, FileNotFoundException, IOException {
 		Cipher cipher = Cipher.getInstance("RSA");
 		Key key = getKey(kFname);
 		cipher.init(Cipher.DECRYPT_MODE, key);
-		
+
 		try (FileInputStream bis = new FileInputStream(eFname);
-				CipherInputStream cis = new CipherInputStream(bis, cipher);
-				Scanner sc = new Scanner(cis)) {
+			 CipherInputStream cis = new CipherInputStream(bis, cipher);
+			 Scanner sc = new Scanner(cis)) {
 			String decrypted = new String();
 			while (sc.hasNext()) {
 				decrypted += sc.nextLine();
