@@ -14,9 +14,9 @@ public class Sign {
 	public static void main(String[] args) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, IOException {
 		Scanner sc = new Scanner(System.in);
 		
-		System.out.print("데이터 파일 이름 : ");
+		//System.out.print("데이터 파일 이름 : ");
 		String plainName = sc.next();
-		System.out.print("개인키 파일 이름 : ");
+		//System.out.print("개인키 파일 이름 : ");
 		String priKeyName = sc.next();
 		
 		FileInputStream fis = new FileInputStream(plainName);
@@ -35,7 +35,7 @@ public class Sign {
 			System.out.print(String.format("%02x", bytes) + " ");
 		}
 		
-		System.out.print("\n서명을 저장할 파일 이름 : ");
+		//System.out.print("\n서명을 저장할 파일 이름 : ");
 		String signName = sc.next();
 		
 		FileOutputStream fos = new FileOutputStream(signName);

@@ -13,19 +13,19 @@ public class Verification {
 	public static void main(String[] args) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
 		Scanner sc = new Scanner(System.in);
 		
-		System.out.print("데이터 파일 이름 : ");
+		//System.out.print("데이터 파일 이름 : ");
 		String plainName = sc.next();
 		FileInputStream fis1 = new FileInputStream(plainName);
 		byte[] data = fis1.readAllBytes();
 		fis1.close();
 		
-		System.out.print("공개키 파일 이름 : ");
+		//System.out.print("공개키 파일 이름 : ");
 		String pubKeyName = sc.next();
 		
 		KeyManager keyMan = new KeyManager();
 		keyMan.loadPublicKey(pubKeyName);
 		
-		System.out.print("전자서명 파일 이름 : ");
+		//System.out.print("전자서명 파일 이름 : ");
 		String signName = sc.next();
 		FileInputStream fis = new FileInputStream(signName);
 		byte[] signature = fis.readAllBytes();
