@@ -25,4 +25,10 @@ public class ExamController {
         examSvc.verifyExamAnswer(session);
         return "someView";
     }
+
+    @RequestMapping("/exam")
+    public String showExam(HttpSession session) {
+        //examSvc.verifyExamAnswer(session);
+        return "exam";
+    }
 }

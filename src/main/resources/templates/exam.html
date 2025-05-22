@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>CheckMate</title>
     <style>
         :root {
@@ -11,9 +13,7 @@
             --bg-light: #f9f9f9;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -36,9 +36,7 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
 
-        h1, h2 {
-            color: var(--main-dark);
-        }
+        h1, h2 { color: var(--main-dark); }
 
         textarea {
             width: 100%;
@@ -80,6 +78,7 @@
 
         .hidden { display: none; }
         p { font-size: 16px; line-height: 1.6; }
+
         #timer {
             font-size: 18px;
             color: #333;
@@ -87,6 +86,7 @@
             margin-bottom: 15px;
             text-align: right;
         }
+
         #overlay {
             position: fixed;
             top: 0; left: 0;
@@ -103,6 +103,7 @@
             text-align: center;
             display: none;
         }
+
         #user-info {
             font-size: 16px;
             margin-bottom: 15px;
@@ -112,21 +113,15 @@
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h1>CheckMate</h1>
-
-    <div id="user-info">학번: <strong>20220123</strong></div>
-
-    <div id="start-section">
-        <p>시험을 시작하려면 아래 버튼을 눌러주세요.</p>
-        <button onclick="startExam()">시험 시작</button>
-    </div>
-
+    <p>test</p>
     <div id="exam-section" class="hidden">
         <div id="timer">남은 시간: <span id="countdown">1:00</span></div>
         <h2>시험 문제</h2>
         <p>Q1. 아래 빈칸에 답안을 작성하세요.</p>
         <textarea id="answer" placeholder="여기에 답안을 입력하세요."></textarea>
+
         <p>Q2. 다음 중 프로그래밍 언어가 아닌 것은?</p>
         <form id="question2-form">
             <label><input type="radio" name="q2" value="1" /> Python</label><br />
@@ -143,11 +138,11 @@
 
     <div id="complete-section" class="hidden">
         <h2>제출 완료</h2>
-        <p>답안이 성공적으로 제출되었습니다. 수고하셨습니다!</p>
+        <p>답안이 성공적으로 제출되었습니다. 감사합니다.</p>
     </div>
 </div>
 
-<div id="overlay">시험 시간이 종료되어 자동 제출되었습니다.</div>
+<div id="overlay">시간이 종료되었습니다. 자동 제출 중...</div>
 
 <script>
     let timer;
@@ -169,20 +164,6 @@
         }
     }
 
-    function startExam() {
-        document.getElementById('start-section').classList.add('hidden');
-        document.getElementById('exam-section').classList.remove('hidden');
-        const keyPair = {
-            publicKey: Math.random().toString(36).slice(2),
-            privateKey: Math.random().toString(36).slice(2),
-        };
-        localStorage.setItem('keyPair', JSON.stringify(keyPair));
-
-        timer = setInterval(updateTimer, 1000);
-        updateTimer();
-        window.location.href = "exam"
-    }
-
     function saveTemp() {
         const answer = document.getElementById('answer').value;
         localStorage.setItem('savedAnswer', answer);
@@ -192,9 +173,8 @@
     function submitExam() {
         clearInterval(timer);
 
+        //봉투 과정 java로?
         const answer1 = document.getElementById('answer').value;
-
-        // 2번째 문제 선택값 가져오기
         const q2Form = document.getElementById('question2-form');
         const selectedQ2 = q2Form.q2.value || '';
 
@@ -210,7 +190,6 @@
         };
         console.log('제출된 전자 봉투:', envelope);
 
-        //session clear
         localStorage.clear();
 
         document.getElementById('exam-section').classList.add('hidden');
@@ -218,10 +197,11 @@
         document.getElementById('overlay').style.display = 'none';
     }
 
-
     window.onload = () => {
         const saved = localStorage.getItem('savedAnswer');
         if (saved) document.getElementById('answer').value = saved;
+        document.getElementById('exam-section').classList.remove('hidden');
+        timer = setInterval(updateTimer, 1000);
     };
 </script>
 </body>
