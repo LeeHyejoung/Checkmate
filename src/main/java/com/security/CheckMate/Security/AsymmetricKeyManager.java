@@ -23,7 +23,7 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 
-public class KeyManager {
+public class AsymmetricKeyManager {
 	private KeyPair keyPair;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;

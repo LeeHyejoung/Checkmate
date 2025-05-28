@@ -1,91 +1,42 @@
 package com.security.CheckMate.Security;
 
 import com.security.CheckMate.DTO.ExamCreateDto;
+import com.security.CheckMate.Domain.User;
 
+import javax.crypto.*;
 import java.io.*;
 import java.security.*;
 import java.util.Scanner;
 
 public class Envelope {
-    public void sign(ExamCreateDto createDto, PrivateKey privateKey, String signName) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        //System.out.print("데이터 파일 이름 : ");
-        //String plainName = sc.next();
-        //System.out.print("개인키 파일 이름 : ");
+    //전자 봉투 암호화, 복호화 (받는 사람의 공개키로 비밀키를 암호화)
+    public void encrypt(PublicKey publicKey, SecretKey secretKey, User user) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
-        //FileInputStream fis = new FileInputStream(plainName);
-        //byte[] data = fis.readAllBytes();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(createDto);
-        oos.flush();
+        String fname = "envelope" + user.getUserName() + ".txt";
 
-        byte[] data =bos.toByteArray();
+        FileOutputStream fos = new FileOutputStream(fname);
+        CipherOutputStream cos = new CipherOutputStream(fos, cipher);
 
-        oos.close();
-        bos.close();;
-
-        //fis.close();
-
-        //KeyManager keyMan = new KeyManager();
-        //keyMan.loadPrivateKey(priKeyName);
-
-        Signature sig = Signature.getInstance("SHA256withRSA");
-        //sig.initSign(keyMan.getPrivateKey());
-        sig.initSign(privateKey);
-        sig.update(data);
-        byte[] signature = sig.sign();
-
-        for (byte bytes : signature) {
-            System.out.print(String.format("%02x", bytes) + " ");
-        }
-
-        //파일에 저장;
-        FileOutputStream fos = new FileOutputStream(signName);
-        fos.write(signature);
-
-        fos.close();
-        //sc.close();
+        //data
+        byte[] data= secretKey.getEncoded();
+        cos.write(data);
+        cos.flush();
+        cos.close();
     }
 
-    public void verify(ExamCreateDto examCreateDto, PublicKey publicKey, String signName) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        //System.out.print("데이터 파일 이름 : ");
-        //String plainName = sc.next();
-        //FileInputStream fis1 = new FileInputStream(plainName);
-        //평문
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(examCreateDto);
-        oos.flush();
+    public SecretKey decrypt(PrivateKey privateKey, User sender) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, ClassNotFoundException {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
 
-        byte[] data = bos.toByteArray();
+        String fname = "envelope" + sender.getUserName() + ".txt";
 
-        oos.close();
-        bos.close();;
-        //fis1.close();
+        FileInputStream fis = new FileInputStream(fname);
+        CipherInputStream cis = new CipherInputStream(fis, cipher);
+        ObjectInputStream os = new ObjectInputStream(cis);
+        SecretKey secretKey = (SecretKey) os.readObject();
 
-        //System.out.print("공개키 파일 이름 : ");
-        //String pubKeyName = sc.next();
-
-        //KeyManager keyMan = new KeyManager();
-        //keyMan.loadPublicKey(pubKeyName);
-
-        //System.out.print("전자서명 파일 이름 : ");
-        //String signName = sc.next();
-        FileInputStream fis = new FileInputStream(signName);
-        byte[] signature = fis.readAllBytes();
-        for (byte bytes : signature) {
-            System.out.print(String.format("%02x", bytes) + " ");
-        }
-
-        Signature sig = Signature.getInstance("SHA256withRSA");
-        //sig.initVerify(keyMan.getPublicKey());
-        sig.initVerify(publicKey);
-        sig.update(data);
-        boolean rslt = sig.verify(signature);
-
-        System.out.println("\n서명 검증 결과:" + rslt);
-
-        fis.close();
-        //sc.close();
+        return secretKey;
     }
 }

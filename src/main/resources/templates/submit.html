@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CheckMate</title>
+    <style>
+        :root {
+            --main-color: #2ecc71;
+            --main-dark: #27ae60;
+            --bg-light: #f9f9f9;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            margin-top: 50px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 { color: var(--main-dark); }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin-top: 10px;
+            resize: vertical;
+            transition: border 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--main-color);
+        }
+
+        button {
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--main-dark);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        p { font-size: 16px; line-height: 1.6; }
+
+        #timer {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+
+        #user-info {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #444;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="complete-section">
+        <h2>제출 완료</h2>
+        <p>답안이 성공적으로 제출되었습니다. 감사합니다.</p>
+    </div>
+</div>
+<script>
+    window.onload = () => {
+        const saved = localStorage.getItem('savedAnswer');
+        if (saved) document.getElementById('answer').value = saved;
+        document.getElementById('exam-section').classList.remove('hidden');
+        timer = setInterval(updateTimer, 1000);
+    };
+</script>
+</body>
+</html>
