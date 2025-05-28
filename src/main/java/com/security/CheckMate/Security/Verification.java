@@ -22,7 +22,7 @@ public class Verification {
 		//System.out.print("공개키 파일 이름 : ");
 		String pubKeyName = sc.next();
 		
-		KeyManager keyMan = new KeyManager();
+		AsymmetricKeyManager keyMan = new AsymmetricKeyManager();
 		keyMan.loadPublicKey(pubKeyName);
 		
 		//System.out.print("전자서명 파일 이름 : ");

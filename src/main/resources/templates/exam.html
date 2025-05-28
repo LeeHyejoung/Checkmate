@@ -115,7 +115,6 @@
 <body>
 
 <div class="container">
-    <p>test</p>
     <div id="exam-section" class="hidden">
         <div id="timer">남은 시간: <span id="countdown">1:00</span></div>
         <h2>시험 문제</h2>
@@ -143,8 +142,7 @@
 </div>
 
 <div id="overlay">시간이 종료되었습니다. 자동 제출 중...</div>
-
-<script>
+<script th:inline="javascript">
     let timer;
     let remainingSeconds = 60;
 
@@ -172,6 +170,14 @@
 
     function submitExam() {
         clearInterval(timer);
+        let user = {
+            userName: [[${user.userName}]],
+            status: [[${user.status}]],
+            subjects: [[${user.subjects}]]
+        };
+        sessionStorage.setItem('user', user);
+
+        window.location.href = "exam/submit"
 
         //봉투 과정 java로?
         const answer1 = document.getElementById('answer').value;
@@ -185,7 +191,7 @@
             timestamp: new Date().toISOString(),
         };
         const envelope = {
-            encrypted: btoa(JSON.stringify(payload)),
+            encrypted: btoa(unescape(encodeURIComponent(JSON.stringify(payload)))),
             publicKey: keyPair.publicKey,
         };
         console.log('제출된 전자 봉투:', envelope);

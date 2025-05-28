@@ -23,7 +23,7 @@ public class Sign {
 		byte[] data = fis.readAllBytes();
 		fis.close();
 		
-		KeyManager keyMan = new KeyManager();
+		AsymmetricKeyManager keyMan = new AsymmetricKeyManager();
 		keyMan.loadPrivateKey(priKeyName);
 		
 		Signature sig = Signature.getInstance("SHA256withRSA");
