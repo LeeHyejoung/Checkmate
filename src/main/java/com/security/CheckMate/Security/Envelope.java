@@ -1,6 +1,5 @@
 package com.security.CheckMate.Security;
 
-import com.security.CheckMate.DTO.ExamCreateDto;
 import com.security.CheckMate.Domain.User;
 
 import javax.crypto.*;
@@ -32,6 +31,7 @@ public class Envelope {
 
         String fname = "envelope" + sender.getUserName() + ".txt";
 
+        //보안분석 - 자원동반 try catch문으로 수정
         FileInputStream fis = new FileInputStream(fname);
         CipherInputStream cis = new CipherInputStream(fis, cipher);
         ObjectInputStream os = new ObjectInputStream(cis);

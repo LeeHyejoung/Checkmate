@@ -121,65 +121,9 @@
         <p>시험을 시작하려면 아래 버튼을 눌러주세요.</p>
         <button onclick="startExam()">시험 시작</button>
     </div>
-
-    <div id="exam-section" class="hidden">
-        <div id="timer">남은 시간: <span id="countdown">1:00</span></div>
-        <h2>시험 문제</h2>
-        <p>Q1. 아래 빈칸에 답안을 작성하세요.</p>
-        <textarea id="answer" placeholder="여기에 답안을 입력하세요."></textarea>
-        <p>Q2. 다음 중 프로그래밍 언어가 아닌 것은?</p>
-        <form id="question2-form">
-            <label><input type="radio" name="q2" value="1" /> Python</label><br />
-            <label><input type="radio" name="q2" value="2" /> JavaScript</label><br />
-            <label><input type="radio" name="q2" value="3" /> HTML</label><br />
-            <label><input type="radio" name="q2" value="4" /> Java</label>
-        </form>
-
-        <div class="button-group">
-            <button onclick="saveTemp()">임시 저장</button>
-            <button onclick="submitExam()">제출</button>
-        </div>
-    </div>
-
-    <div id="complete-section" class="hidden">
-        <h2>제출 완료</h2>
-        <p>답안이 성공적으로 제출되었습니다. 수고하셨습니다!</p>
-    </div>
 </div>
-
-<div id="overlay">시험 시간이 종료되어 자동 제출되었습니다.</div>
-
 <script>
-    let timer;
-    let remainingSeconds = 60;
-
-    function updateTimer() {
-        const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
-        const seconds = String(remainingSeconds % 60).padStart(2, '0');
-        document.getElementById('countdown').textContent = `${minutes}:${seconds}`;
-
-        if (remainingSeconds > 0) {
-            remainingSeconds--;
-        } else {
-            clearInterval(timer);
-            document.getElementById('overlay').style.display = 'flex';
-            setTimeout(() => {
-                submitExam();
-            }, 2000);
-        }
-    }
-
     function startExam() {
-        document.getElementById('start-section').classList.add('hidden');
-        document.getElementById('exam-section').classList.remove('hidden');
-        const keyPair = {
-            publicKey: Math.random().toString(36).slice(2),
-            privateKey: Math.random().toString(36).slice(2),
-        };
-        localStorage.setItem('keyPair', JSON.stringify(keyPair));
-
-        timer = setInterval(updateTimer, 1000);
-        updateTimer();
         window.location.href = "exam"
     }
 
@@ -188,36 +132,6 @@
         localStorage.setItem('savedAnswer', answer);
         alert('임시 저장이 완료되었습니다.');
     }
-
-    function submitExam() {
-        clearInterval(timer);
-
-        const answer1 = document.getElementById('answer').value;
-
-        // 2번째 문제 선택값 가져오기
-        const q2Form = document.getElementById('question2-form');
-        const selectedQ2 = q2Form.q2.value || '';
-
-        const keyPair = JSON.parse(localStorage.getItem('keyPair')) || {};
-        const payload = {
-            answer1,
-            answer2: selectedQ2,
-            timestamp: new Date().toISOString(),
-        };
-        const envelope = {
-            encrypted: btoa(JSON.stringify(payload)),
-            publicKey: keyPair.publicKey,
-        };
-        console.log('제출된 전자 봉투:', envelope);
-
-        //session clear
-        localStorage.clear();
-
-        document.getElementById('exam-section').classList.add('hidden');
-        document.getElementById('complete-section').classList.remove('hidden');
-        document.getElementById('overlay').style.display = 'none';
-    }
-
 
     window.onload = () => {
         const saved = localStorage.getItem('savedAnswer');

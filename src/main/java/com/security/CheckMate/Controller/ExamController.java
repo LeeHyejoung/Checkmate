@@ -1,5 +1,6 @@
 package com.security.CheckMate.Controller;
 
+import com.security.CheckMate.DTO.ExamCommand;
 import com.security.CheckMate.DTO.ExamCreateDto;
 import com.security.CheckMate.Domain.User;
 import com.security.CheckMate.Security.AsymmetricKeyManager;
@@ -15,6 +16,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 
 
 @Controller
@@ -23,8 +25,8 @@ public class ExamController {
     ExamService examSvc;
 
     @RequestMapping("/exam/submit")
-    public String submitAnswer(@ModelAttribute ExamCreateDto examCreateDto, HttpSession session) throws NoSuchPaddingException, IOException, NoSuchAlgorithmException, InvalidKeyException, ClassNotFoundException {
-        examSvc.makeExamAnswer(examCreateDto, session);
+    public String submitAnswer(@ModelAttribute ExamCommand examCommand, HttpSession session) throws NoSuchPaddingException, IOException, NoSuchAlgorithmException, InvalidKeyException, ClassNotFoundException, SignatureException {
+        examSvc.makeExamAnswer(examCommand, session);
 
         User user = (User) session.getAttribute("user");
 
