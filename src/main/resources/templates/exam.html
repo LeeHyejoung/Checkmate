@@ -144,16 +144,19 @@
 <div id="overlay">시간이 종료되었습니다. 자동 제출 중...</div>
 <script th:inline="javascript">
     let timer;
-    let remainingSeconds = 60;
+    const examDuration = 5 * 60 * 1000; // 5분
+    let examEndTime;
 
     function updateTimer() {
-        const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
-        const seconds = String(remainingSeconds % 60).padStart(2, '0');
-        document.getElementById('countdown').textContent = `${minutes}:${seconds}`;
+        const now = new Date().getTime();
+        const remaining = examEndTime - now;
 
-        if (remainingSeconds > 0) {
-            remainingSeconds--;
+        if (remaining > 0) {
+            const minutes = String(Math.floor(remaining / 1000 / 60)).padStart(2, '0');
+            const seconds = String(Math.floor((remaining / 1000) % 60)).padStart(2, '0');
+            document.getElementById('countdown').textContent = `${minutes}:${seconds}`;
         } else {
+            document.getElementById('countdown').textContent = "00:00";
             clearInterval(timer);
             document.getElementById('overlay').style.display = 'flex';
             setTimeout(() => {
@@ -175,26 +178,10 @@
             status: [[${user.status}]],
             subjects: [[${user.subjects}]]
         };
-        sessionStorage.setItem('user', user);
+        sessionStorage.setItem('user', JSON.stringify(user));
 
-        window.location.href = "exam/submit"
-
-        //봉투 과정 java로?
-        const answer1 = document.getElementById('answer').value;
-        const q2Form = document.getElementById('question2-form');
-        const selectedQ2 = q2Form.q2.value || '';
-
-        const keyPair = JSON.parse(localStorage.getItem('keyPair')) || {};
-        const payload = {
-            answer1,
-            answer2: selectedQ2,
-            timestamp: new Date().toISOString(),
-        };
-        const envelope = {
-            encrypted: btoa(unescape(encodeURIComponent(JSON.stringify(payload)))),
-            publicKey: keyPair.publicKey,
-        };
-        console.log('제출된 전자 봉투:', envelope);
+        // 응시 종료 처리
+        window.location.href = "exam/submit";
 
         localStorage.clear();
 
@@ -203,11 +190,42 @@
         document.getElementById('overlay').style.display = 'none';
     }
 
+    function startExam() {
+        const now = new Date().getTime();
+        examEndTime = now + examDuration;
+        localStorage.setItem('examEndTime', examEndTime);
+
+        document.getElementById('exam-section').classList.remove('hidden');
+        timer = setInterval(updateTimer, 1000);
+        updateTimer();
+    }
+
     window.onload = () => {
         const saved = localStorage.getItem('savedAnswer');
         if (saved) document.getElementById('answer').value = saved;
-        document.getElementById('exam-section').classList.remove('hidden');
-        timer = setInterval(updateTimer, 1000);
+
+        const storedEndTime = localStorage.getItem('examEndTime');
+        const now = new Date().getTime();
+
+        if (storedEndTime) {
+            examEndTime = parseInt(storedEndTime, 10);
+            if (now < examEndTime) {
+                // 남은 시간 있을 경우 이어서 타이머 시작
+                document.getElementById('exam-section').classList.remove('hidden');
+                timer = setInterval(updateTimer, 1000);
+                updateTimer();
+            } else {
+                // 시간이 지난 경우 자동 제출
+                document.getElementById('countdown').textContent = "00:00";
+                document.getElementById('overlay').style.display = 'flex';
+                setTimeout(() => {
+                    submitExam();
+                }, 2000);
+            }
+        } else {
+            // 최초 실행: 타이머 시작
+            startExam();
+        }
     };
 </script>
 </body>

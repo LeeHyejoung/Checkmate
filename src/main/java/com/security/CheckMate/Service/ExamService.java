@@ -1,5 +1,6 @@
 package com.security.CheckMate.Service;
 
+import com.security.CheckMate.DTO.ExamCommand;
 import com.security.CheckMate.DTO.ExamCreateDto;
 import com.security.CheckMate.Domain.User;
 import com.security.CheckMate.Security.Cryptogram;
@@ -17,15 +18,16 @@ import java.io.ObjectInputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SignatureException;
 
 @Service
 public class ExamService {
 
-    public void makeExamAnswer(ExamCreateDto examCreateDto, HttpSession session) {
-        session.setAttribute("publicKeyBytes", examCreateDto.getPublicKeyBytes()); // 예시
+    public void makeExamAnswer(ExamCommand examCommand, HttpSession session) {
+        //session.setAttribute("publicKeyBytes" ??); // 예시
     }
 
-    public void encryptAnswer(User user) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    public void encryptAnswer(User user) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, SignatureException {
         Envelope envelope = new Envelope();
 
         String publicKeyFname = "public" + user.getUserName() + ".txt";
@@ -39,6 +41,7 @@ public class ExamService {
 
         envelope.encrypt(publicKey, secretKey, user);
         Cryptogram cryptogram = new Cryptogram();
+        cryptogram.encrypt("envelope"  + user.getUserName() + ".txt", user);
     }
 
     public void verifyExamAnswer(HttpSession session) {
