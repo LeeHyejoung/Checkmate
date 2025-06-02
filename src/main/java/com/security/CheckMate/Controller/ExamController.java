@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -23,10 +25,20 @@ public class ExamController {
     ExamService examSvc;
 
     @PostMapping("/exam/submit")
-    public String submitAnswer(@ModelAttribute ExamCommand examCommand, HttpSession session) throws NoSuchPaddingException, IOException, NoSuchAlgorithmException, InvalidKeyException, ClassNotFoundException, SignatureException {
-        examSvc.makeExamAnswer(examCommand, session);
+    public String submitAnswer(@ModelAttribute ExamCommand examCommand, HttpSession session) throws NoSuchPaddingException, IOException, NoSuchAlgorithmException, InvalidKeyException, ClassNotFoundException, SignatureException, IllegalBlockSizeException, BadPaddingException {
+        String json = examSvc.toJson(examCommand);
+        //examSvc.makeExamAnswer(examCommand, json, session);
         User user = (User) session.getAttribute("user");
-        examSvc.encryptAnswer(user);
+        examSvc.encryptAnswer(json, user);
+        return "submit";
+    }
+
+    @GetMapping("/exam/submit")
+    public String showSubmitPage(@ModelAttribute ExamCommand examCommand, HttpSession session) throws NoSuchPaddingException, IllegalBlockSizeException, IOException, NoSuchAlgorithmException, SignatureException, BadPaddingException, InvalidKeyException, ClassNotFoundException {
+        String json = examSvc.toJson(examCommand);
+        //examSvc.makeExamAnswer(examCommand, json, session);
+        User user = (User) session.getAttribute("user");
+        examSvc.encryptAnswer(json, user);
         return "submit";
     }
 
@@ -39,7 +51,7 @@ public class ExamController {
 
     @GetMapping("/exam")
     public String showExam(HttpSession session, Model model) throws NoSuchAlgorithmException {
-        User user = new User("김동덕", "student", new String[]{"웹코드보안", "소프트웨어시스템개발"});
+        User user = new User("20221234", "student", new String[]{"웹코드보안", "소프트웨어시스템개발"});
 
         AsymmetricKeyManager keyMan = new AsymmetricKeyManager();
         keyMan.generate();
@@ -72,8 +84,8 @@ public class ExamController {
 
     @PostMapping("/professor_exam")
     public String processStudentId(@RequestParam("studentId") String studentId, Model model) {
-        if ("2022123".equals(studentId)) {
-            User user = new User("김동덕", "student", new String[]{"웹코드보안"});
+        if ("20221234".equals(studentId)) {
+            User user = new User("20221234", "student", new String[]{"웹코드보안"});
             ExamCommand examCommand = new ExamCommand();
             examCommand.setQ1Answer("Spring Security는 인증과 권한을 처리해주는 프레임워크입니다.");
             examCommand.setQ2Answer("3");

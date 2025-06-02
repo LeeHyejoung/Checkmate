@@ -1,64 +1,67 @@
 package com.security.CheckMate.Security;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.security.CheckMate.DTO.ExamCreateDto;
 import com.security.CheckMate.Domain.User;
 
+import javax.crypto.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Cryptogram {
     /*
     비밀키로 다음과 같은 파일 암호화
     학생의 파일, 파일의 해시값을 학생의 사설키로 암호화한 값, 학생의 공개키
     */
-    public void encrypt(String fname, User user) throws IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException {
-        byte[] data;
-        try (FileInputStream fis = new FileInputStream(fname)) {
-            data = fis.readAllBytes();
-        }
-        AsymmetricKeyManager keyMan = new AsymmetricKeyManager();
+    public void encrypt(String plainFname, String hashFname, User user, SecretKey secretKey, String json) throws IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+        System.out.print("test");
 
-        PrivateKey privateKey = keyMan.loadPrivateKey("private" + user.getUserName() + ".txt");
-
-        sign(data, privateKey, "sign" + user.getUserName() + ".txt");
-        keyMan.loadPublicKey("public" + user.getUserName() + ".txt");
-        PublicKey publicKey = keyMan.getPublicKey();
-
-    }
-    public void sign(byte[] data, PrivateKey privateKey, String signName) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        //System.out.print("데이터 파일 이름 : ");
-        //String plainName = sc.next();
-        //System.out.print("개인키 파일 이름 : ");
-
-        //FileInputStream fis = new FileInputStream(plainName);
-        //byte[] data = fis.readAllBytes();
+        byte[] plainData;
         /*
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(createDto);
-        oos.flush();
+        try (FileInputStream fis = new FileInputStream(plainFname)) {
+            plainData = fis.readAllBytes();
+        }*/
+        plainData = json.getBytes();
+        String plainBase = Base64.getEncoder().encodeToString(plainData);
 
-        byte[] data = bos.toByteArray();
+        //해시
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashData = digest.digest(plainData);
+        String hashBase = Base64.getEncoder().encodeToString(hashData);
 
-        oos.close();
-        bos.close();;
-*/
-        //fis.close();
+        //비밀키 가져오기
+        AsymmetricKeyManager keyMan = new AsymmetricKeyManager();
+        PrivateKey privateKey = keyMan.loadPrivateKey("private" + user.getUserName() + ".txt");
+        PublicKey publicKey = keyMan.loadPublicKey("public" + user.getUserName() + ".txt");
 
-        Signature sig = Signature.getInstance("SHA256withRSA");
-        sig.initSign(privateKey);
-        sig.update(data);
-        byte[] signature = sig.sign();
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+        byte[] encryptedHashData = cipher.doFinal(hashData);
+        String encryptedHashBase = Base64.getEncoder().encodeToString(encryptedHashData);
 
-        for (byte bytes : signature) {
-            System.out.print(String.format("%02x", bytes) + " ");
-        }
+        String publicKeyBase = Base64.getEncoder().encodeToString(keyMan.getPublicKeyBytes());
+        Map<String, String> jsonData = new HashMap<>();
+        jsonData.put("plain", plainBase);
+        jsonData.put("hash", hashBase);
+        jsonData.put("encrypted_hash", encryptedHashBase);
+        jsonData.put("public_key", publicKeyBase);
 
-        //파일에 저장;
-        FileOutputStream fos = new FileOutputStream(signName);
-        fos.write(signature);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String jsonString = gson.toJson(jsonData);
 
-        fos.close();
+        Cipher symCipher = Cipher.getInstance("AES");
+        symCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedJson = symCipher.doFinal(jsonString.getBytes("UTF-8"));
+
+        Files.write(Paths.get("encrypted_" + user.getUserName() + ".txt"), encryptedJson);
+        System.out.println(jsonString);
+
     }
 
     public void verify(ExamCreateDto examCreateDto, PublicKey publicKey, String signName) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {

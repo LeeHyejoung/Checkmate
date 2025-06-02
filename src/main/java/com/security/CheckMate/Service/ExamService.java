@@ -1,5 +1,6 @@
 package com.security.CheckMate.Service;
 
+import com.google.gson.Gson;
 import com.security.CheckMate.DTO.ExamCommand;
 import com.security.CheckMate.Domain.ExamAnswer;
 import com.security.CheckMate.Domain.User;
@@ -7,10 +8,10 @@ import com.security.CheckMate.Security.Cryptogram;
 import com.security.CheckMate.Security.Envelope;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+
+import javax.crypto.*;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.security.InvalidKeyException;
@@ -21,7 +22,7 @@ import java.security.SignatureException;
 @Service
 public class ExamService {
 
-    public void makeExamAnswer(ExamCommand examCommand, HttpSession session) {
+    public void makeExamAnswer(ExamCommand examCommand, String json, HttpSession session) {
         User user = new User(examCommand.getStudentId(), "student", null);
         ExamAnswer Q1answer = new ExamAnswer(user.getUserName(), examCommand.getQ1Answer());
         ExamAnswer Q2answer = new ExamAnswer(user.getUserName(), examCommand.getQ2Answer());
@@ -29,14 +30,14 @@ public class ExamService {
         // 나중에 DB 저장 또는 파일 저장 로직
         // 지금은 암호화로만 넘겨도 OK
         try {
-            encryptAnswer(user);
+            encryptAnswer(json, user);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    public void encryptAnswer(User user) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, SignatureException {
+    public void encryptAnswer(String json, User user) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, SignatureException, IllegalBlockSizeException, BadPaddingException {
         Envelope envelope = new Envelope();
 
         String publicKeyFname = "public" + user.getUserName() + ".txt";
@@ -49,8 +50,9 @@ public class ExamService {
         SecretKey secretKey = keyGen.generateKey();
 
         envelope.encrypt(publicKey, secretKey, user);
+
         Cryptogram cryptogram = new Cryptogram();
-        cryptogram.encrypt("envelope"  + user.getUserName() + ".txt", user);
+        cryptogram.encrypt("plain"  + user.getUserName() + ".txt", "hash" + user.getUserName() + ".txt", user, secretKey, json);
     }
 
     public boolean verifyExamAnswer(HttpSession session) {
@@ -69,4 +71,17 @@ public class ExamService {
         return 100;
     }
 
+    public String toJson(ExamCommand examCommand) {
+        Gson gson = new Gson();
+        String json = gson.toJson(examCommand);
+
+        try (FileWriter writer = new FileWriter("exam_submission.json")) {
+            writer.write(json);
+            System.out.println("✅ JSON 파일 저장 완료: exam_submission.json");
+        } catch (IOException e) {
+            System.err.println("❌ JSON 저장 실패:");
+            e.printStackTrace();
+        }
+        return json;
+    }
 }
