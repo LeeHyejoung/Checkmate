@@ -30,6 +30,11 @@ public class ExamController {
         return "submit";
     }
 
+    @GetMapping("/exam/submit")
+    public String showSubmitPage(@ModelAttribute ExamCommand examCommand, HttpSession session) {
+        return "submit";
+    }
+
     @RequestMapping("/exam/verify")
     public String verifyExamAnswer(HttpSession session, Model model) {
         boolean valid = examSvc.verifyExamAnswer(session);
