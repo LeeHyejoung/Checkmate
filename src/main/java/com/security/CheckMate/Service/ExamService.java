@@ -1,18 +1,16 @@
 package com.security.CheckMate.Service;
 
 import com.security.CheckMate.DTO.ExamCommand;
-import com.security.CheckMate.DTO.ExamCreateDto;
+import com.security.CheckMate.Domain.ExamAnswer;
 import com.security.CheckMate.Domain.User;
 import com.security.CheckMate.Security.Cryptogram;
 import com.security.CheckMate.Security.Envelope;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.security.InvalidKeyException;
@@ -24,8 +22,19 @@ import java.security.SignatureException;
 public class ExamService {
 
     public void makeExamAnswer(ExamCommand examCommand, HttpSession session) {
-        //session.setAttribute("publicKeyBytes" ??); // 예시
+        User user = new User(examCommand.getStudentId(), "student", null);
+        ExamAnswer Q1answer = new ExamAnswer(user.getUserName(), examCommand.getQ1Answer());
+        ExamAnswer Q2answer = new ExamAnswer(user.getUserName(), examCommand.getQ2Answer());
+
+        // 나중에 DB 저장 또는 파일 저장 로직
+        // 지금은 암호화로만 넘겨도 OK
+        try {
+            encryptAnswer(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
     public void encryptAnswer(User user) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, SignatureException {
         Envelope envelope = new Envelope();
@@ -44,7 +53,20 @@ public class ExamService {
         cryptogram.encrypt("envelope"  + user.getUserName() + ".txt", user);
     }
 
-    public void verifyExamAnswer(HttpSession session) {
-        byte[] publicKeyBytes = (byte[]) session.getAttribute("publicKeyBytes");
+    public boolean verifyExamAnswer(HttpSession session) {
+        try {
+            byte[] publicKeyBytes = (byte[]) session.getAttribute("publicKeyBytes");
+            // 검증 로직 ...
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
+
+
+    public int getScoreForUser(User user) {
+        return 100;
+    }
+
 }
