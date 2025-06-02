@@ -18,6 +18,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
+import java.util.Arrays;
 
 @Service
 public class ExamService {
@@ -49,10 +50,14 @@ public class ExamService {
         keyGen.init(256);
         SecretKey secretKey = keyGen.generateKey();
 
-        envelope.encrypt(publicKey, secretKey, user);
+        byte[] keyBytes = secretKey.getEncoded();
+        envelope.encrypt(publicKey, keyBytes, user);
 
         Cryptogram cryptogram = new Cryptogram();
         cryptogram.encrypt("plain"  + user.getUserName() + ".txt", "hash" + user.getUserName() + ".txt", user, secretKey, json);
+
+        Arrays.fill(keyBytes, (byte) 0);
+        secretKey = null;
     }
 
     public boolean verifyExamAnswer(HttpSession session) {

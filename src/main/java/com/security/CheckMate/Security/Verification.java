@@ -15,6 +15,7 @@ public class Verification {
 		
 		//System.out.print("데이터 파일 이름 : ");
 		String plainName = sc.next();
+
 		FileInputStream fis1 = new FileInputStream(plainName);
 		byte[] data = fis1.readAllBytes();
 		fis1.close();

@@ -15,10 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Cryptogram {
-    /*
-    비밀키로 다음과 같은 파일 암호화
-    학생의 파일, 파일의 해시값을 학생의 사설키로 암호화한 값, 학생의 공개키
-    */
     public void encrypt(String plainFname, String hashFname, User user, SecretKey secretKey, String json) throws IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         System.out.print("test");
 

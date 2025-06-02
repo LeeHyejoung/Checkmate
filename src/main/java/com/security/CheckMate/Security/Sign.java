@@ -18,11 +18,12 @@ public class Sign {
 		String plainName = sc.next();
 		//System.out.print("개인키 파일 이름 : ");
 		String priKeyName = sc.next();
-		
-		FileInputStream fis = new FileInputStream(plainName);
-		byte[] data = fis.readAllBytes();
-		fis.close();
-		
+
+		byte[] data;
+		try (FileInputStream fis = new FileInputStream(plainName)) {
+			data = fis.readAllBytes();
+		}
+
 		AsymmetricKeyManager keyMan = new AsymmetricKeyManager();
 		keyMan.loadPrivateKey(priKeyName);
 		
