@@ -120,7 +120,7 @@
         <h2>시험 문제</h2>
         <form id="examForm" method="post" action="/exam/submit">
         <p>Q1. 아래 빈칸에 답안을 작성하세요.</p>
-            <textarea name="answer1" placeholder="여기에 답안을 입력하세요."></textarea>
+            <textarea name="answer1" id="answer1" placeholder="여기에 답안을 입력하세요."></textarea>
 
             <p>Q2. 다음 중 프로그래밍 언어가 아닌 것은?</p>
             <label><input type="radio" name="answer2" value="1" /> Python</label><br />
@@ -167,8 +167,13 @@
     }
 
     function saveTemp() {
-        const answer = document.getElementById('answer').value;
-        localStorage.setItem('savedAnswer', answer);
+        const answer1 = document.getElementById('answer1').value;
+        localStorage.setItem('savedAnswer1', answer1);
+
+        const selectedRadio = document.querySelector('input[name="answer2"]:checked');
+        if (selectedRadio) {
+          localStorage.setItem('savedAnswer2', selectedRadio.value);
+        }
         alert('임시 저장이 완료되었습니다.');
     }
 
@@ -218,9 +223,18 @@
     }
 
     window.onload = () => {
-        const saved = localStorage.getItem('savedAnswer');
-        if (saved) document.getElementById('answer').value = saved;
+        const savedAnswer1 = localStorage.getItem('savedAnswer1');
+        if (savedAnswer1 !== null) {
+          document.getElementById('answer1').value = savedAnswer1;
+        }
 
+        const savedAnswer2 = localStorage.getItem('savedAnswer2');
+        if (savedAnswer2 !== null) {
+          const radio = document.querySelector(`input[name="answer2"][value="${savedAnswer2}"]`);
+          if (radio) {
+            radio.checked = true;
+          }
+        }
         const storedEndTime = localStorage.getItem('examEndTime');
         const now = new Date().getTime();
 

@@ -111,8 +111,8 @@
       <p><strong>과목:</strong>
         <span th:each="sub : ${user.subjects}" th:text="${sub} + ' '">웹보안 시스템</span>
       </p>
+      <p><strong>검증 결과:</strong> <span th:text="${verification}">result</span></p>
     </div>
-
     <div class="answer-block">
       <h3>Q1. 주관식 답안</h3>
       <textarea readonly th:text="${examCommand.answer1}">학생이 작성한 답안이 여기에 표시됩니다.</textarea>
