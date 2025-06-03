@@ -32,14 +32,14 @@ public class ExamService {
         // 나중에 DB 저장 또는 파일 저장 로직
         // 지금은 암호화로만 넘겨도 OK
         try {
-            encryptAnswer(json, user);
+            encryptAnswer(session, json, user);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    public void encryptAnswer(String json, User user) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, SignatureException, IllegalBlockSizeException, BadPaddingException {
+    public void encryptAnswer(HttpSession session, String json, User user) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, SignatureException, IllegalBlockSizeException, BadPaddingException {
         Envelope envelope = new Envelope();
 
         String publicKeyFname = "public" + user.getUserName() + ".txt";
@@ -53,19 +53,30 @@ public class ExamService {
 
         byte[] keyBytes = new byte[32];
         SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
+        System.out.println(Arrays.toString(secretKey.getEncoded()));
+
+        session.setAttribute("secretKeyBites", keyBytes);
         envelope.encrypt(publicKey, keyBytes, user);
 
         Cryptogram cryptogram = new Cryptogram();
-        cryptogram.encrypt("plain"  + user.getUserName() + ".txt", "hash" + user.getUserName() + ".txt", user, secretKey, json);
+        cryptogram.encrypt(/*"plain"  + user.getUserName() + ".txt", "hash" + user.getUserName() + ".txt", */user, secretKey, json);
 
         Arrays.fill(keyBytes, (byte) 0);
         secretKey = null;
     }
 
-    public boolean verifyExamAnswer(HttpSession session) {
+    public boolean verifyExamAnswer(HttpSession session, User user) {
         try {
             byte[] publicKeyBytes = (byte[]) session.getAttribute("publicKeyBytes");
             // 검증 로직 ...
+            byte[] keyBytes = (byte[])session.getAttribute("secretKeyBites");
+
+            //byte[] keyBytes = new byte[32];
+            SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
+            System.out.println(Arrays.toString(secretKey.getEncoded()));
+
+            Cryptogram cryptogram = new Cryptogram();
+            cryptogram.decrypt(user, secretKey);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
