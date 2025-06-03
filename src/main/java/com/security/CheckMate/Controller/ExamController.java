@@ -29,7 +29,7 @@ public class ExamController {
         String json = examSvc.toJson(examCommand);
         //examSvc.makeExamAnswer(examCommand, json, session);
         User user = (User) session.getAttribute("user");
-        examSvc.encryptAnswer(json, user);
+        examSvc.encryptAnswer(session, json, user);
         return "submit";
     }
 
@@ -38,14 +38,14 @@ public class ExamController {
         String json = examSvc.toJson(examCommand);
         //examSvc.makeExamAnswer(examCommand, json, session);
         User user = (User) session.getAttribute("user");
-        examSvc.encryptAnswer(json, user);
+        examSvc.encryptAnswer(session, json, user);
         return "submit";
     }
 
     @RequestMapping("/exam/verify")
     public String verifyExamAnswer(HttpSession session, Model model) {
-        boolean valid = examSvc.verifyExamAnswer(session);
-        model.addAttribute("verification", valid ? "검증 성공" : "검증 실패");
+        //boolean valid = examSvc.verifyExamAnswer(session);
+        //model.addAttribute("verification", valid ? "검증 성공" : "검증 실패");
         return "verification_result";
     }
 
@@ -83,7 +83,7 @@ public class ExamController {
     }
 
     @PostMapping("/professor_exam")
-    public String processStudentId(@RequestParam("studentId") String studentId, Model model) {
+    public String processStudentId(@RequestParam("studentId") String studentId, HttpSession session, Model model) {
         if ("20221234".equals(studentId)) {
             User user = new User("20221234", "student", new String[]{"웹코드보안"});
             ExamCommand examCommand = new ExamCommand();
@@ -93,6 +93,9 @@ public class ExamController {
             model.addAttribute("message", "유효한 학번입니다.");
             model.addAttribute("user", user);
             model.addAttribute("examCommand", examCommand);
+            //boolean valid = examSvc.verifyExamAnswer(session);
+            boolean valid = examSvc.verifyExamAnswer(session, user);
+            model.addAttribute("verification", valid ? "검증 성공" : "검증 실패");
         } else {
             model.addAttribute("message", "잘못된 학번입니다.");
         }

@@ -10,12 +10,16 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.*;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Cryptogram {
-    public void encrypt(String plainFname, String hashFname, User user, SecretKey secretKey, String json) throws IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+    public void encrypt(/*String plainFname, String hashFname,*/User user, SecretKey secretKey, String json) throws IOException, NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         System.out.print("test");
 
         byte[] plainData;
@@ -58,6 +62,55 @@ public class Cryptogram {
         Files.write(Paths.get("encrypted_" + user.getUserName() + ".txt"), encryptedJson);
         System.out.println(jsonString);
 
+    }
+
+    public void decrypt(User user, SecretKey secretKey) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException {
+        byte[] encrypted = Files.readAllBytes(Paths.get("encrypted_" + user.getUserName() + ".txt"));
+
+        Cipher symCipher = Cipher.getInstance("AES");
+        symCipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedJsonBytes = symCipher.doFinal(encrypted);
+        String decryptedJson = new String(decryptedJsonBytes, "UTF-8");
+
+        System.out.println(decryptedJson);
+
+        Gson gson = new Gson();
+        Map<String, String> jsonData = gson.fromJson(decryptedJson, Map.class);
+
+        String plainBase = jsonData.get("plain");
+        String hashBase = jsonData.get("hash");
+        String encryptedHashBase = jsonData.get("encrypted_hash");
+        String publicKeyBase = jsonData.get("public_key");
+
+        byte[] plainData = Base64.getDecoder().decode(plainBase);
+        byte[] encryptedHashData = Base64.getDecoder().decode(encryptedHashBase);
+        byte[] originalHash = Base64.getDecoder().decode(hashBase);
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase);
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        PublicKey publicKey = keyFactory.generatePublic(pubKeySpec);
+
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        byte[] decryptedHash = cipher.doFinal(encryptedHashData);
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(plainData);
+
+        boolean hashCheck = Arrays.equals(decryptedHash, hash);
+
+        System.out.println("[integrity check result]");
+        if (hashCheck) {
+            System.out.println("integrity checked.");
+        } else {
+            System.out.println("integrity errer! corrupted data");
+        }
+
+        // (선택) 복호화된 평문 출력
+        String plainText = new String(plainData, "UTF-8");
+        System.out.println("[decrypted plain text]");
+        System.out.println(plainText);
     }
 
     public void verify(ExamCreateDto examCreateDto, PublicKey publicKey, String signName) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
