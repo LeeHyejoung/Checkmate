@@ -118,21 +118,23 @@
     <div id="exam-section" class="hidden">
         <div id="timer">남은 시간: <span id="countdown">1:00</span></div>
         <h2>시험 문제</h2>
+        <form action="/exam/submit" method="post">
         <p>Q1. 아래 빈칸에 답안을 작성하세요.</p>
-        <textarea id="answer" placeholder="여기에 답안을 입력하세요."></textarea>
+        <textarea name="q1Answer" id="answer" placeholder="여기에 답안을 입력하세요."></textarea>
 
         <p>Q2. 다음 중 프로그래밍 언어가 아닌 것은?</p>
-        <form id="question2-form">
-            <label><input type="radio" name="q2" value="1" /> Python</label><br />
-            <label><input type="radio" name="q2" value="2" /> JavaScript</label><br />
-            <label><input type="radio" name="q2" value="3" /> HTML</label><br />
-            <label><input type="radio" name="q2" value="4" /> Java</label>
-        </form>
+
+            <label><input type="radio" name="q2Answer" value="1" /> Python</label><br />
+            <label><input type="radio" name="q2Answer" value="2" /> JavaScript</label><br />
+            <label><input type="radio" name="q2Answer" value="3" /> HTML</label><br />
+            <label><input type="radio" name="q2Answer" value="4" /> Java</label>
+
 
         <div class="button-group">
             <button onclick="saveTemp()">임시 저장</button>
             <button onclick="submitExam()">제출</button>
         </div>
+        </form>
     </div>
 
     <div id="complete-section" class="hidden">
