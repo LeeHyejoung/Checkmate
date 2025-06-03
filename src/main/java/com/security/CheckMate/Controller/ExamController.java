@@ -29,6 +29,7 @@ public class ExamController {
         String json = examSvc.toJson(examCommand);
         session.setAttribute("examCommand", examCommand);
         //examSvc.makeExamAnswer(examCommand, json, session);
+        System.out.println("submit Controller test");
         User user = (User) session.getAttribute("user");
         examSvc.encryptAnswer(session, json, user);
         return "submit";
