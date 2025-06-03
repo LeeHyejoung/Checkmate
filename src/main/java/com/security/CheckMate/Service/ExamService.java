@@ -15,10 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.Arrays;
 
 @Service
@@ -52,10 +49,12 @@ public class ExamService {
         //SecretKey secretKey = keyGen.generateKey();
 
         byte[] keyBytes = new byte[32];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(keyBytes);
         SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
         System.out.println(Arrays.toString(secretKey.getEncoded()));
 
-        session.setAttribute("secretKeyBites", keyBytes);
+        session.setAttribute("secretKeyBytes", keyBytes);
         envelope.encrypt(publicKey, keyBytes, user);
 
         Cryptogram cryptogram = new Cryptogram();
@@ -69,7 +68,7 @@ public class ExamService {
         try {
             byte[] publicKeyBytes = (byte[]) session.getAttribute("publicKeyBytes");
             // 검증 로직 ...
-            byte[] keyBytes = (byte[])session.getAttribute("secretKeyBites");
+            byte[] keyBytes = (byte[])session.getAttribute("secretKeyBytes");
 
             //byte[] keyBytes = new byte[32];
             SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
