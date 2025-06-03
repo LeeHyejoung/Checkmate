@@ -69,7 +69,12 @@ public class Cryptogram {
 
         Cipher symCipher = Cipher.getInstance("AES");
         symCipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+        //여기가 문제
         byte[] decryptedJsonBytes = symCipher.doFinal(encrypted);
+
+
+
         String decryptedJson = new String(decryptedJsonBytes, "UTF-8");
 
         System.out.println(decryptedJson);
@@ -126,7 +131,7 @@ public class Cryptogram {
         byte[] data = bos.toByteArray();
 
         oos.close();
-        bos.close();;
+        bos.close();
         //fis1.close();
 
         //System.out.print("공개키 파일 이름 : ");

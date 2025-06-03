@@ -118,16 +118,17 @@
     <div id="exam-section" class="hidden">
         <div id="timer">남은 시간: <span id="countdown">1:00</span></div>
         <h2>시험 문제</h2>
+        <form id="examForm" method="post" action="/exam/submit">
         <p>Q1. 아래 빈칸에 답안을 작성하세요.</p>
-        <textarea id="answer" placeholder="여기에 답안을 입력하세요."></textarea>
+            <textarea name="answer1" placeholder="여기에 답안을 입력하세요."></textarea>
 
-        <p>Q2. 다음 중 프로그래밍 언어가 아닌 것은?</p>
-        <form id="question2-form">
-            <label><input type="radio" name="q2" value="1" /> Python</label><br />
-            <label><input type="radio" name="q2" value="2" /> JavaScript</label><br />
-            <label><input type="radio" name="q2" value="3" /> HTML</label><br />
-            <label><input type="radio" name="q2" value="4" /> Java</label>
+            <p>Q2. 다음 중 프로그래밍 언어가 아닌 것은?</p>
+            <label><input type="radio" name="answer2" value="1" /> Python</label><br />
+            <label><input type="radio" name="answer2" value="2" /> JavaScript</label><br />
+            <label><input type="radio" name="answer2" value="3" /> HTML</label><br />
+            <label><input type="radio" name="answer2" value="4" /> Java</label>
         </form>
+
 
         <div class="button-group">
             <button onclick="saveTemp()">임시 저장</button>
@@ -173,22 +174,36 @@
 
     function submitExam() {
         clearInterval(timer);
-        let user = {
-            userName: [[${user.userName}]],
-            status: [[${user.status}]],
-            subjects: [[${user.subjects}]]
-        };
-        sessionStorage.setItem('user', JSON.stringify(user));
 
-        // 응시 종료 처리
-        window.location.href = "exam/submit";
+        const form = document.getElementById('examForm');
+        const formData = new FormData(form);
 
-        localStorage.clear();
+        // 옵션: 서버로 비동기 제출하려면 fetch 사용
+        fetch('/exam/submit', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                let user = {
+                    userName: [[${user.userName}]],
+                    status: [[${user.status}]],
+                    subjects: [[${user.subjects}]]
+                };
+                sessionStorage.setItem('user', JSON.stringify(user));
 
-        document.getElementById('exam-section').classList.add('hidden');
-        document.getElementById('complete-section').classList.remove('hidden');
-        document.getElementById('overlay').style.display = 'none';
+                localStorage.clear();
+                document.getElementById('exam-section').classList.add('hidden');
+                document.getElementById('complete-section').classList.remove('hidden');
+                document.getElementById('overlay').style.display = 'none';
+            } else {
+                alert('제출에 실패했습니다.');
+            }
+        }).catch(error => {
+            console.error('제출 중 오류 발생:', error);
+            alert('오류가 발생했습니다.');
+        });
     }
+
 
     function startExam() {
         const now = new Date().getTime();

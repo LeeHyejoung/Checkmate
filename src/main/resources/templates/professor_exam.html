@@ -115,12 +115,12 @@
 
     <div class="answer-block">
       <h3>Q1. 주관식 답안</h3>
-      <textarea readonly th:text="${examCommand.q1Answer}">학생이 작성한 답안이 여기에 표시됩니다.</textarea>
+      <textarea readonly th:text="${examCommand.answer1}">학생이 작성한 답안이 여기에 표시됩니다.</textarea>
     </div>
 
     <div class="answer-block">
       <h3>Q2. 선택형 답안</h3>
-      <div class="radio-answer" th:text="'선택한 보기 번호: ' + ${examCommand.q2Answer}">선택한 보기 번호: 3</div>
+      <div class="radio-answer" th:text="'선택한 보기 번호: ' + ${examCommand.answer2}">선택한 보기 번호: 3</div>
     </div>
   </div>
 

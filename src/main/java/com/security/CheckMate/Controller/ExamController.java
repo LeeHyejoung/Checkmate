@@ -27,6 +27,7 @@ public class ExamController {
     @PostMapping("/exam/submit")
     public String submitAnswer(@ModelAttribute ExamCommand examCommand, HttpSession session) throws NoSuchPaddingException, IOException, NoSuchAlgorithmException, InvalidKeyException, ClassNotFoundException, SignatureException, IllegalBlockSizeException, BadPaddingException {
         String json = examSvc.toJson(examCommand);
+        session.setAttribute("examCommand", examCommand);
         //examSvc.makeExamAnswer(examCommand, json, session);
         User user = (User) session.getAttribute("user");
         examSvc.encryptAnswer(session, json, user);
@@ -85,15 +86,21 @@ public class ExamController {
     @PostMapping("/professor_exam")
     public String processStudentId(@RequestParam("studentId") String studentId, HttpSession session, Model model) {
         if ("20221234".equals(studentId)) {
-            User user = new User("20221234", "student", new String[]{"웹코드보안"});
-            ExamCommand examCommand = new ExamCommand();
-            examCommand.setQ1Answer("Spring Security는 인증과 권한을 처리해주는 프레임워크입니다.");
-            examCommand.setQ2Answer("3");
+            User user = new User("20221234", "컴퓨터학과", new String[]{"웹코드보안"});
+
+            // 세션에서 기존 답안 꺼내기 (예시)
+            ExamCommand examCommand = (ExamCommand) session.getAttribute("examCommand");
+
+            if (examCommand == null) {
+                examCommand = new ExamCommand();
+                examCommand.setAnswer1("저장된 답안이 없습니다.");
+                examCommand.setAnswer2("0");
+            }
 
             model.addAttribute("message", "유효한 학번입니다.");
             model.addAttribute("user", user);
             model.addAttribute("examCommand", examCommand);
-            //boolean valid = examSvc.verifyExamAnswer(session);
+
             boolean valid = examSvc.verifyExamAnswer(session, user);
             model.addAttribute("verification", valid ? "검증 성공" : "검증 실패");
         } else {

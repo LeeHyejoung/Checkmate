@@ -23,8 +23,8 @@ public class ExamService {
 
     public void makeExamAnswer(ExamCommand examCommand, String json, HttpSession session) {
         User user = new User(examCommand.getStudentId(), "student", null);
-        ExamAnswer Q1answer = new ExamAnswer(user.getUserName(), examCommand.getQ1Answer());
-        ExamAnswer Q2answer = new ExamAnswer(user.getUserName(), examCommand.getQ2Answer());
+        ExamAnswer Q1answer = new ExamAnswer(user.getUserName(), examCommand.getAnswer1());
+        ExamAnswer Q2answer = new ExamAnswer(user.getUserName(), examCommand.getAnswer2());
 
         // 나중에 DB 저장 또는 파일 저장 로직
         // 지금은 암호화로만 넘겨도 OK
@@ -96,6 +96,9 @@ public class ExamService {
     public String toJson(ExamCommand examCommand) {
         Gson gson = new Gson();
         String json = gson.toJson(examCommand);
+
+        System.out.println("저장할 JSON 내용:");
+        System.out.println(json);
 
         try (FileWriter writer = new FileWriter("exam_submission.json")) {
             writer.write(json);
