@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,9 +49,10 @@ public class ExamService {
 
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(256);
-        SecretKey secretKey = keyGen.generateKey();
+        //SecretKey secretKey = keyGen.generateKey();
 
-        byte[] keyBytes = secretKey.getEncoded();
+        byte[] keyBytes = new byte[32];
+        SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
         envelope.encrypt(publicKey, keyBytes, user);
 
         Cryptogram cryptogram = new Cryptogram();
@@ -82,9 +84,9 @@ public class ExamService {
 
         try (FileWriter writer = new FileWriter("exam_submission.json")) {
             writer.write(json);
-            System.out.println("✅ JSON 파일 저장 완료: exam_submission.json");
+            System.out.println("JSON 파일 저장 완료:");
         } catch (IOException e) {
-            System.err.println("❌ JSON 저장 실패:");
+            System.err.println("JSON 저장 실패:");
             e.printStackTrace();
         }
         return json;

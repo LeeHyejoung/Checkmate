@@ -7,11 +7,10 @@ import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.*;
-import java.util.Scanner;
 
 public class Envelope {
     //전자 봉투 암호화, 복호화 (받는 사람의 공개키로 비밀키를 암호화)
-    public void encrypt(PublicKey publicKey, SecretKey secretKey, User user) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public void encrypt(PublicKey publicKey, byte[] secretKey, User user) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
@@ -21,7 +20,7 @@ public class Envelope {
         CipherOutputStream cos = new CipherOutputStream(fos, cipher);
 
         //data
-        byte[] data= secretKey.getEncoded();
+        byte[] data= secretKey;//.getEncoded();
         cos.write(data);
         cos.flush();
         cos.close();
