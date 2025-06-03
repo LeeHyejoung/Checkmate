@@ -54,7 +54,10 @@ public class ExamService {
         SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
         System.out.println(Arrays.toString(secretKey.getEncoded()));
 
-        session.setAttribute("secretKeyBytes", keyBytes);
+        System.out.println("Session ID in submitAnswer: " + session.getId());
+
+        //session.setAttribute("secretKeyBytes", keyBytes);
+        session.setAttribute("secretKeyBytes", keyBytes.clone());
         envelope.encrypt(publicKey, keyBytes, user);
 
         Cryptogram cryptogram = new Cryptogram();
@@ -73,6 +76,8 @@ public class ExamService {
             //byte[] keyBytes = new byte[32];
             SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
             System.out.println(Arrays.toString(secretKey.getEncoded()));
+
+            System.out.println("Session ID in verifyExamAnswer: " + session.getId());
 
             Cryptogram cryptogram = new Cryptogram();
             cryptogram.decrypt(user, secretKey);
