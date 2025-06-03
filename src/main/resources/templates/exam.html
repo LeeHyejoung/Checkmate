@@ -195,6 +195,8 @@
                 document.getElementById('exam-section').classList.add('hidden');
                 document.getElementById('complete-section').classList.remove('hidden');
                 document.getElementById('overlay').style.display = 'none';
+
+                window.location.href = "/exam/submit";
             } else {
                 alert('제출에 실패했습니다.');
             }
