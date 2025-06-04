@@ -16,14 +16,15 @@ public class Envelope {
 
         String fname = "envelope" + user.getUserName() + ".txt";
 
-        FileOutputStream fos = new FileOutputStream(fname);
-        CipherOutputStream cos = new CipherOutputStream(fos, cipher);
+        try (FileOutputStream fos = new FileOutputStream(fname);) {
+            try (CipherOutputStream cos = new CipherOutputStream(fos, cipher);) {
+                byte[] data= secretKey;//.getEncoded();
+                cos.write(data);
+                cos.flush();
+            }
+        }
 
-        //data
-        byte[] data= secretKey;//.getEncoded();
-        cos.write(data);
-        cos.flush();
-        cos.close();
+        //cos.close();
     }
 
     public SecretKey decrypt(PrivateKey privateKey, User sender) throws DecryptionException {

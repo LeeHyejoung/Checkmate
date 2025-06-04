@@ -50,18 +50,6 @@ public class AsymmetricKeyManager {
 		return privateKey.getEncoded();
 	}
 
-	public PublicKey getPublicKeyFromBytes(byte[] bytes) throws Exception {
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
-		return keyFactory.generatePublic(spec);
-	}
-
-	public PrivateKey getPrivateKeyFromBytes(byte[] bytes) throws Exception {
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
-		return keyFactory.generatePrivate(spec);
-	}
-
 	public boolean savePublicKey(String fname) {
 		try (FileOutputStream fos = new FileOutputStream(fname)) {
 			try (ObjectOutputStream ostream = new ObjectOutputStream(fos)) {
@@ -149,43 +137,6 @@ public class AsymmetricKeyManager {
 		else {
 			return loadPrivateKey(fname);
 		}
-	}
-	public boolean encrypt(String kFname, String pFname, String eFname) throws FileNotFoundException, IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
-		Cipher cipher = Cipher.getInstance("RSA");
-		Key key = getKey(kFname);
-		cipher.init(Cipher.ENCRYPT_MODE, key);
-		String data = "";
-		try (FileInputStream fis = new FileInputStream(pFname)) {
-			int c;
-			while ((c = fis.read()) != -1) {
-				data += (char)c;
-			}
-		}
-
-		try (FileOutputStream fos = new FileOutputStream(eFname);
-			 CipherOutputStream cos = new CipherOutputStream(fos, cipher)) {
-			cos.write(data.getBytes());
-			cos.flush();
-		}
-		return true;
-	}
-
-	public boolean decrypt(String kFname, String eFname) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, FileNotFoundException, IOException {
-		Cipher cipher = Cipher.getInstance("RSA");
-		Key key = getKey(kFname);
-		cipher.init(Cipher.DECRYPT_MODE, key);
-
-		try (FileInputStream bis = new FileInputStream(eFname);
-			 CipherInputStream cis = new CipherInputStream(bis, cipher);
-			 Scanner sc = new Scanner(cis)) {
-			String decrypted = new String();
-			while (sc.hasNext()) {
-				decrypted += sc.nextLine();
-				decrypted += "\n";
-			}
-			System.out.println("result : \n" + decrypted);
-		}
-		return true;
 	}
 
 	public KeyPair getKeyPair() {

@@ -23,10 +23,6 @@ public class Cryptogram {
         System.out.print("test");
 
         byte[] plainData;
-        /*
-        try (FileInputStream fis = new FileInputStream(plainFname)) {
-            plainData = fis.readAllBytes();
-        }*/
         plainData = json.getBytes();
         String plainBase = Base64.getEncoder().encodeToString(plainData);
 
@@ -70,10 +66,7 @@ public class Cryptogram {
         Cipher symCipher = Cipher.getInstance("AES");
         symCipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-        //여기가 문제
         byte[] decryptedJsonBytes = symCipher.doFinal(encrypted);
-
-
 
         String decryptedJson = new String(decryptedJsonBytes, "UTF-8");
 
@@ -116,47 +109,5 @@ public class Cryptogram {
         String plainText = new String(plainData, "UTF-8");
         System.out.println("[decrypted plain text]");
         System.out.println(plainText);
-    }
-
-    public void verify(ExamCreateDto examCreateDto, PublicKey publicKey, String signName) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        //System.out.print("데이터 파일 이름 : ");
-        //String plainName = sc.next();
-        //FileInputStream fis1 = new FileInputStream(plainName);
-        //평문
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(examCreateDto);
-        oos.flush();
-
-        byte[] data = bos.toByteArray();
-
-        oos.close();
-        bos.close();
-        //fis1.close();
-
-        //System.out.print("공개키 파일 이름 : ");
-        //String pubKeyName = sc.next();
-
-        //KeyManager keyMan = new KeyManager();
-        //keyMan.loadPublicKey(pubKeyName);
-
-        //System.out.print("전자서명 파일 이름 : ");
-        //String signName = sc.next();
-        FileInputStream fis = new FileInputStream(signName);
-        byte[] signature = fis.readAllBytes();
-        for (byte bytes : signature) {
-            System.out.print(String.format("%02x", bytes) + " ");
-        }
-
-        Signature sig = Signature.getInstance("SHA256withRSA");
-        //sig.initVerify(keyMan.getPublicKey());
-        sig.initVerify(publicKey);
-        sig.update(data);
-        boolean rslt = sig.verify(signature);
-
-        System.out.println("\n서명 검증 결과:" + rslt);
-
-        fis.close();
-        //sc.close();
     }
 }

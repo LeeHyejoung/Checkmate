@@ -28,7 +28,6 @@ public class ExamController {
     public String submitAnswer(@ModelAttribute ExamCommand examCommand, HttpSession session) throws NoSuchPaddingException, IOException, NoSuchAlgorithmException, InvalidKeyException, ClassNotFoundException, SignatureException, IllegalBlockSizeException, BadPaddingException {
         String json = examSvc.toJson(examCommand);
         session.setAttribute("examCommand", examCommand);
-        //examSvc.makeExamAnswer(examCommand, json, session);
         System.out.println("submit Controller test");
         User user = (User) session.getAttribute("user");
 
@@ -40,8 +39,7 @@ public class ExamController {
 
     @GetMapping("/exam/submit")
     public String showSubmitPage(@ModelAttribute ExamCommand examCommand, HttpSession session) throws NoSuchPaddingException, IllegalBlockSizeException, IOException, NoSuchAlgorithmException, SignatureException, BadPaddingException, InvalidKeyException, ClassNotFoundException {
-        String json = examSvc.toJson(examCommand);
-        //examSvc.makeExamAnswer(examCommand, json, session);
+        String json = examSvc.toJson(examCommand);;
         User user = (User) session.getAttribute("user");
 
         User professor = new User("20000000", "professor", new String[]{"웹코드보안"});
@@ -65,6 +63,7 @@ public class ExamController {
         keyMan.generate();
         keyMan.savePrivateKey("private" + user.getUserName() + ".txt");
         keyMan.savePublicKey("public" + user.getUserName() + ".txt");
+
         User professor = new User("20000000", "professor", new String[]{"웹코드보안"});
         keyMan.generate();
         keyMan.savePrivateKey("private" + professor.getUserName() + ".txt");
@@ -99,7 +98,7 @@ public class ExamController {
         if ("20221234".equals(studentId)) {
             User student = new User("20221234", "student", new String[]{"웹코드보안"});
 
-            // 세션에서 기존 답안 꺼내기 (예시)
+            // 세션에서 기존 답안 꺼내기
             ExamCommand examCommand = (ExamCommand) session.getAttribute("examCommand");
 
             if (examCommand == null) {
